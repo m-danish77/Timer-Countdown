@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DayCount — Track the days that matter</title>
+    <meta
+      name="description"
+      content="A beautiful, minimal countdown timer for the dates that matter."
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Decorative background orbs -->
+    <div class="bg-orb bg-orb--1" aria-hidden="true"></div>
+    <div class="bg-orb bg-orb--2" aria-hidden="true"></div>
+
+    <div class="app">
+      <!-- Header -->
+      <header class="app-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path
+                d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8Zm1-13h-2v6l5.2 3.1 1-1.7-4.2-2.5Z"
+                fill="currentColor"
+              />
+            </svg>
+          </span>
+          <h1 class="brand-name">DayCount</h1>
+        </div>
+        <p class="today" id="today-date">—</p>
+      </header>
+
+      <main class="main">
+        <!-- ============ SETUP SCREEN ============ -->
+        <section
+          id="setup-screen"
+          class="screen screen--setup"
+          aria-labelledby="setup-title"
+        >
+          <div class="card card--setup">
+            <div class="card-header">
+              <h2 id="setup-title" class="card-title">
+                Track the days that matter.
+              </h2>
+              <p class="card-subtitle">
+                Pick a start date and a target date. We'll take care of the
+                rest.
+              </p>
+            </div>
+
+            <form id="countdown-form" class="form" novalidate>
+              <div class="field">
+                <label for="start-date">Start date</label>
+                <div class="input-wrap">
+                  <svg
+                    class="input-icon"
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M7 2v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2ZM5 10h14v10H5Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <input type="date" id="start-date" required />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="target-date">Target date</label>
+                <div class="input-wrap">
+                  <svg
+                    class="input-icon"
+                    viewBox="0 0 24 24"
+                    width="18"
+                    height="18"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 2 14.4 8.6 21 9.3l-5 4.6 1.5 6.6L12 17l-5.5 3.5L8 13.9 3 9.3l6.6-.7Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <input type="date" id="target-date" required />
+                </div>
+              </div>
+
+              <div id="form-error" class="error" role="alert" hidden>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm1 15h-2v-2h2Zm0-4h-2V7h2Z"
+                    fill="currentColor"
+                  />
+                </svg>
+                <span id="form-error-text"></span>
+              </div>
+
+              <button type="submit" class="btn btn--primary">
+                Start Countdown
+                <svg
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M5 12h12m-5-5 5 5-5 5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ============ COUNTDOWN SCREEN ============ -->
+        <section
+          id="countdown-screen"
+          class="screen screen--countdown"
+          aria-labelledby="countdown-title"
+          hidden
+        >
+          <div class="card card--countdown">
+            <div class="card-header">
+              <h2 id="countdown-title" class="card-title">Countdown</h2>
+              <p class="card-subtitle" id="countdown-subtitle">
+                Until your target date
+              </p>
+            </div>
+
+            <!-- Hero: days remaining + progress ring -->
+            <div class="hero">
+              <div class="hero__ring" aria-hidden="true">
+                <svg viewBox="0 0 200 200" class="ring">
+                  <circle class="ring__track" cx="100" cy="100" r="90" />
+                  <circle
+                    class="ring__progress"
+                    id="ring-progress"
+                    cx="100"
+                    cy="100"
+                    r="90"
+                  />
+                </svg>
+                <div class="ring__label">
+                  <span class="ring__percent" id="percent-text">0%</span>
+                  <span class="ring__caption">complete</span>
+                </div>
+              </div>
+
+              <div class="hero__days">
+                <span class="hero__number" id="days-remaining">0</span>
+                <span class="hero__label" id="days-label">DAYS REMAINING</span>
+              </div>
+            </div>
+
+            <!-- Weeks · Days -->
+            <div class="weeks-days">
+              <span id="weeks-text">0 Weeks</span>
+              <span class="sep">·</span>
+              <span id="extra-days-text">0 Days</span>
+            </div>
+
+            <!-- Live HH:MM:SS -->
+            <div class="live-timer" aria-live="polite">
+              <div class="live-timer__block">
+                <span class="live-timer__num" id="hours">00</span>
+                <span class="live-timer__unit">Hours</span>
+              </div>
+              <span class="live-timer__colon">:</span>
+              <div class="live-timer__block">
+                <span class="live-timer__num" id="minutes">00</span>
+                <span class="live-timer__unit">Minutes</span>
+              </div>
+              <span class="live-timer__colon">:</span>
+              <div class="live-timer__block">
+                <span class="live-timer__num" id="seconds">00</span>
+                <span class="live-timer__unit">Seconds</span>
+              </div>
+            </div>
+
+            <!-- Motivational message -->
+            <p class="motivation" id="motivation">Every day counts.</p>
+
+            <!-- Info grid -->
+            <dl class="info">
+              <div class="info__item">
+                <dt>Start date</dt>
+                <dd id="info-start">—</dd>
+              </div>
+              <div class="info__item">
+                <dt>Target date</dt>
+                <dd id="info-target">—</dd>
+              </div>
+              <div class="info__item">
+                <dt>Total duration</dt>
+                <dd id="info-total">—</dd>
+              </div>
+              <div class="info__item">
+                <dt>Elapsed</dt>
+                <dd id="info-elapsed">—</dd>
+              </div>
+              <div class="info__item">
+                <dt>Remaining</dt>
+                <dd id="info-remaining">—</dd>
+              </div>
+            </dl>
+
+            <!-- Actions -->
+            <div class="actions">
+              <button
+                type="button"
+                class="btn btn--ghost"
+                id="new-countdown-btn"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 5v14m-7-7h14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                New Countdown
+              </button>
+              <button type="button" class="btn btn--link" id="reset-btn">
+                Reset
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ COMPLETED OVERLAY ============ -->
+        <section
+          id="completed-banner"
+          class="completed"
+          hidden
+          aria-live="polite"
+        >
+          <div class="completed__emoji">🎉</div>
+          <h3 class="completed__title">Countdown Complete</h3>
+          <p class="completed__subtitle">You made it.</p>
+        </section>
+      </main>
+
+      <footer class="app-footer">
+        <small
+          >Built with HTML, CSS &amp; vanilla JavaScript · Data saved locally in
+          your browser</small
+        >
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
